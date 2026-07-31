@@ -1,0 +1,12 @@
+{
+  "v0.1.2": {
+    "repository": "exoduscode/lsusers",
+    "codename": "noble",
+    "package": "lsusers",
+    "version": "0.1.2-1",
+    "architecture": "all",
+    "asset": "lsusers_0.1.2-1_all.deb",
+    "sha256": "e1c630dc797958b5d5f12d397be8d03276f4ff2f7233b3bd57eecadfbe431735"
+  }
+}
+
