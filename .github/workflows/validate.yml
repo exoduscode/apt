@@ -1,0 +1,36 @@
+name: Validate repository sources
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq reprepro shellcheck
+
+      - name: Validate scripts
+        run: shellcheck scripts/*.sh
+
+      - name: Validate release manifest
+        run: jq --exit-status '.["v0.1.2"].codename == "noble"' releases/manifest.json
+
+      - name: Validate signing key fingerprint
+        run: |
+          test "$(gpg --batch --with-colons --show-keys keys/exoduscode-archive-keyring.gpg | awk -F: '$1 == "fpr" { print $10; exit }')" = "C85DDAF2A38CA242A745D9DE5A4025DA3610A2EC"
+
+      - name: Check repository database
+        run: reprepro -b repository check
+

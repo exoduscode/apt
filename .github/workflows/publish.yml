@@ -1,0 +1,126 @@
+name: Publish package
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Approved upstream release tag
+        required: true
+        type: choice
+        options:
+          - v0.1.2
+      codename:
+        description: Ubuntu distribution codename
+        required: true
+        type: choice
+        options:
+          - noble
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: apt-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    environment: production
+    outputs:
+      commit: ${{ steps.commit.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install repository tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq reprepro
+
+      - name: Import protected signing key
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+          APT_GPG_PASSPHRASE: ${{ secrets.APT_GPG_PASSPHRASE }}
+        run: |
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          install -d -m 700 "$GNUPGHOME"
+          printf '%s' "$APT_GPG_PRIVATE_KEY" >"$RUNNER_TEMP/private-key.asc"
+          gpg --batch --import "$RUNNER_TEMP/private-key.asc"
+          printf 'allow-preset-passphrase\n' >"$GNUPGHOME/gpg-agent.conf"
+          gpgconf --kill gpg-agent
+          gpg-connect-agent /bye
+          keygrip=$(gpg --batch --with-colons --with-keygrip --list-secret-keys \
+            C85DDAF2A38CA242A745D9DE5A4025DA3610A2EC | \
+            awk -F: '$1 == "grp" { print $10; exit }')
+          /usr/lib/gnupg2/gpg-preset-passphrase --preset \
+            --passphrase "$APT_GPG_PASSPHRASE" "$keygrip"
+          echo "GNUPGHOME=$GNUPGHOME" >>"$GITHUB_ENV"
+          rm -f "$RUNNER_TEMP/private-key.asc"
+
+      - name: Download and verify approved release
+        id: package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          deb=$(scripts/verify-release.sh \
+            "${{ inputs.tag }}" "${{ inputs.codename }}" "$RUNNER_TEMP/package")
+          echo "deb=$deb" >>"$GITHUB_OUTPUT"
+
+      - name: Import package idempotently
+        run: scripts/publish-package.sh "${{ inputs.tag }}" "${{ inputs.codename }}" "${{ steps.package.outputs.deb }}"
+
+      - name: Validate signatures and installation on AMD64
+        env:
+          TAG: ${{ inputs.tag }}
+          CODENAME: ${{ inputs.codename }}
+        run: scripts/test-repository.sh
+
+      - name: Commit immutable repository state
+        id: commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add repository
+          if git diff --cached --quiet; then
+            echo "Repository already contains the approved package"
+          else
+            git commit -m "repo: publish ${{ inputs.tag }} for ${{ inputs.codename }}"
+            git push origin HEAD:main
+          fi
+          echo "commit=$(git rev-parse HEAD)" >>"$GITHUB_OUTPUT"
+
+      - name: Build Pages artifact
+        run: scripts/build-site.sh
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  validate-arm64:
+    needs: publish
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.publish.outputs.commit }}
+
+      - name: Validate signatures and installation on ARM64
+        run: scripts/test-repository.sh
+
+  deploy:
+    needs:
+      - publish
+      - validate-arm64
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy signed repository to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
