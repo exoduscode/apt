@@ -1,0 +1,7 @@
+Archive: stable
+Version: 24.04
+Component: main
+Origin: ExodusCode
+Label: ExodusCode
+Architecture: arm64
+Description: ExodusCode packages for Ubuntu 24.04 LTS

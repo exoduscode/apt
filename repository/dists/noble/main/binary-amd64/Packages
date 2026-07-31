@@ -1,0 +1,18 @@
+Package: lsusers
+Version: 0.1.2-1
+Architecture: all
+Maintainer: Matt Abreu <matheusabreu.dev@gmail.com>
+Installed-Size: 53
+Depends: python3:any
+Homepage: https://github.com/exoduscode/lsusers
+Priority: optional
+Section: admin
+Filename: pool/main/l/lsusers/lsusers_0.1.2-1_all.deb
+Size: 8920
+SHA256: e1c630dc797958b5d5f12d397be8d03276f4ff2f7233b3bd57eecadfbe431735
+SHA1: 130c532f80cc31f732c603723c3a25a5d4ecc117
+MD5sum: 5e931457feb9b5591212317ed0f8f3f2
+Description: simple Linux and macOS user account listing command
+ lsusers provides memorable commands for listing human, system, and all
+ accounts, with table, JSON, CSV, and names-only output.
+
