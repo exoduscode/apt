@@ -47,14 +47,17 @@ latest_cli_version=$(jq -r --arg package "$package" --arg codename "$codename" \
   .cli_version
 ' "$manifest")
 
+repository_path=$(realpath "$repository")
+keyring_path=$(realpath "$keyring")
+
 docker run --rm \
   -e PACKAGE="$package" \
   -e VERSION="$version" \
   -e CLI_VERSION="$cli_version" \
   -e LATEST_VERSION="$latest_version" \
   -e LATEST_CLI_VERSION="$latest_cli_version" \
-  -v "$PWD/$repository:/repo:ro" \
-  -v "$PWD/$keyring:/exoduscode-keyring.gpg:ro" \
+  -v "$repository_path:/repo:ro" \
+  -v "$keyring_path:/exoduscode-keyring.gpg:ro" \
   ubuntu:24.04 bash -euc '
     cp /exoduscode-keyring.gpg /usr/share/keyrings/exoduscode-archive-keyring.gpg
     printf "%s\n" \

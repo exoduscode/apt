@@ -53,7 +53,7 @@ jobs:
       - name: Install repository tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq reprepro
+          sudo apt-get install -y apt-utils dpkg-dev jq
 
       - name: Import protected signing key
         env:
@@ -86,7 +86,7 @@ jobs:
 
       - name: Import package idempotently
         env:
-          REPREPRO_BASE_DIR: published/repository
+          APT_REPOSITORY_DIR: published/repository
         run: scripts/publish-package.sh "${{ inputs.tag }}" "${{ inputs.codename }}" "${{ steps.package.outputs.deb }}"
 
       - name: Validate signatures and installation on AMD64
