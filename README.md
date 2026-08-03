@@ -33,6 +33,8 @@ Always compare the complete fingerprint before trusting a downloaded key.
 
 - Packages are imported only from stable upstream GitHub Releases listed in
   `releases/manifest.json`.
+- Every downloaded package must match both the GitHub Release digest and its
+  GitHub artifact attestation before it can be imported.
 - A published package version is immutable. Republishing the same version with
   different bytes is rejected.
 - Downgrades are rejected.

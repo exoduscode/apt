@@ -8,6 +8,7 @@ on:
         required: true
         type: choice
         options:
+          - v0.1.3
           - v0.1.2
       codename:
         description: Ubuntu distribution codename
