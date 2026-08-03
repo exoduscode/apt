@@ -31,12 +31,28 @@ version=$(jq -r --arg tag "$tag" '.[$tag].version' "$manifest")
 cli_version=$(jq -r --arg tag "$tag" '.[$tag].cli_version' "$manifest")
 expected_sha256=$(jq -r --arg tag "$tag" '.[$tag].sha256' "$manifest")
 deb=$(find "$repository/pool" -type f -name "${package}_${version}_*.deb" -print -quit)
+if [[ -z "$deb" ]]; then
+  echo "$package $version is missing from the repository pool" >&2
+  exit 1
+fi
 printf '%s  %s\n' "$expected_sha256" "$deb" | sha256sum --check --status
+
+latest_version=$(jq -r --arg package "$package" --arg codename "$codename" '
+  .[] | select(.package == $package and .codename == $codename) | .version
+' "$manifest" | sort -V | tail -n1)
+latest_cli_version=$(jq -r --arg package "$package" --arg codename "$codename" \
+  --arg version "$latest_version" '
+  .[] |
+  select(.package == $package and .codename == $codename and .version == $version) |
+  .cli_version
+' "$manifest")
 
 docker run --rm \
   -e PACKAGE="$package" \
   -e VERSION="$version" \
   -e CLI_VERSION="$cli_version" \
+  -e LATEST_VERSION="$latest_version" \
+  -e LATEST_CLI_VERSION="$latest_cli_version" \
   -v "$PWD/$repository:/repo:ro" \
   -v "$PWD/$keyring:/exoduscode-keyring.gpg:ro" \
   ubuntu:24.04 bash -euc '
@@ -49,11 +65,12 @@ docker run --rm \
       "Signed-By: /usr/share/keyrings/exoduscode-archive-keyring.gpg" \
       >/etc/apt/sources.list.d/exoduscode.sources
     apt-get update
-    apt-cache policy "$PACKAGE" | grep -F "Candidate: $VERSION"
-    apt-get install -y "$PACKAGE"
+    apt-cache policy "$PACKAGE" | grep -F "Candidate: $LATEST_VERSION"
+    apt-cache madison "$PACKAGE" | awk "{print \$3}" | grep -Fx "$VERSION"
+    apt-get install -y "$PACKAGE=$VERSION"
     "$PACKAGE" --version | grep -F "$PACKAGE $CLI_VERSION"
     "$PACKAGE" count
     apt-get remove -y "$PACKAGE"
     apt-get install -y "$PACKAGE"
-    "$PACKAGE" --version | grep -F "$PACKAGE $CLI_VERSION"
+    "$PACKAGE" --version | grep -F "$PACKAGE $LATEST_CLI_VERSION"
   '

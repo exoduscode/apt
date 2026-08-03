@@ -23,11 +23,15 @@ if [[ -n "$existing" ]]; then
   exit 0
 fi
 
-latest_version=$(reprepro -b "$base_directory" listfilter "$codename" \
+latest_version_before=$(reprepro -b "$base_directory" listfilter "$codename" \
   "Package (== $package)" 2>/dev/null | awk '{print $3}' | sort -V | tail -n1 || true)
-if [[ -n "$latest_version" ]] && dpkg --compare-versions "$version" lt "$latest_version"; then
-  echo "Refusing downgrade from $latest_version to $version" >&2
-  exit 1
-fi
 
 reprepro -b "$base_directory" includedeb "$codename" "$deb"
+
+latest_version_after=$(reprepro -b "$base_directory" listfilter "$codename" \
+  "Package (== $package)" 2>/dev/null | awk '{print $3}' | sort -V | tail -n1 || true)
+if [[ -n "$latest_version_before" ]] && \
+   dpkg --compare-versions "$latest_version_after" lt "$latest_version_before"; then
+  echo "Refusing candidate downgrade from $latest_version_before to $latest_version_after" >&2
+  exit 1
+fi

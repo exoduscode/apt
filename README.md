@@ -37,7 +37,9 @@ Always compare the complete fingerprint before trusting a downloaded key.
   GitHub artifact attestation before it can be imported.
 - A published package version is immutable. Republishing the same version with
   different bytes is rejected.
-- Downgrades are rejected.
+- All approved versions remain indexed (`Limit: 0`) so a specific version can
+  be installed for recovery. Publishing an older approved version must never
+  lower the default APT candidate, which remains the greatest Debian version.
 - The archive key expires on 2028-07-30. Rotation must begin at least 90 days
   before expiry.
 - Generated indexes and packages are retained in Git so upgrades and rollback

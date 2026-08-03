@@ -131,6 +131,9 @@ jobs:
           path: published
 
       - name: Validate signatures and installation on ARM64
+        env:
+          TAG: ${{ inputs.tag }}
+          CODENAME: ${{ inputs.codename }}
         run: scripts/test-repository.sh published/repository keys/exoduscode-archive-keyring.gpg
 
   deploy:
