@@ -47,6 +47,7 @@ gh release download "$tag" --repo "$repository" --pattern "$asset" \
 deb="$output_directory/$asset"
 
 printf '%s  %s\n' "$expected_sha256" "$deb" | sha256sum --check --status
+gh attestation verify "$deb" --repo "$repository"
 
 actual_package=$(dpkg-deb --field "$deb" Package)
 actual_version=$(dpkg-deb --field "$deb" Version)
@@ -60,4 +61,3 @@ if [[ "$actual_package" != "$package" ]] || \
 fi
 
 printf '%s\n' "$deb"
-

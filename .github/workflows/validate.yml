@@ -25,7 +25,20 @@ jobs:
         run: shellcheck scripts/*.sh
 
       - name: Validate release manifest
-        run: jq --exit-status '.["v0.1.2"].codename == "noble"' releases/manifest.json
+        run: |
+          jq --exit-status '
+            type == "object" and length > 0 and
+            all(.[];
+              (.repository | type == "string" and length > 0) and
+              .codename == "noble" and
+              (.package | type == "string" and length > 0) and
+              (.version | type == "string" and length > 0) and
+              (.cli_version | type == "string" and length > 0) and
+              .architecture == "all" and
+              (.asset | type == "string" and endswith("_all.deb")) and
+              (.sha256 | test("^[0-9a-f]{64}$"))
+            )
+          ' releases/manifest.json
 
       - name: Validate signing key fingerprint
         run: |

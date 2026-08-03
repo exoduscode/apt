@@ -28,11 +28,15 @@ fi
 
 package=$(jq -r --arg tag "$tag" '.[$tag].package' "$manifest")
 version=$(jq -r --arg tag "$tag" '.[$tag].version' "$manifest")
+cli_version=$(jq -r --arg tag "$tag" '.[$tag].cli_version' "$manifest")
 expected_sha256=$(jq -r --arg tag "$tag" '.[$tag].sha256' "$manifest")
 deb=$(find "$repository/pool" -type f -name "${package}_${version}_*.deb" -print -quit)
 printf '%s  %s\n' "$expected_sha256" "$deb" | sha256sum --check --status
 
 docker run --rm \
+  -e PACKAGE="$package" \
+  -e VERSION="$version" \
+  -e CLI_VERSION="$cli_version" \
   -v "$PWD/$repository:/repo:ro" \
   -v "$PWD/$keyring:/exoduscode-keyring.gpg:ro" \
   ubuntu:24.04 bash -euc '
@@ -45,12 +49,11 @@ docker run --rm \
       "Signed-By: /usr/share/keyrings/exoduscode-archive-keyring.gpg" \
       >/etc/apt/sources.list.d/exoduscode.sources
     apt-get update
-    apt-cache policy lsusers | grep "Candidate: 0.1.2-1"
-    apt-get install -y lsusers
-    lsusers --version | grep "lsusers 0.1.2"
-    lsusers count
-    apt-get remove -y lsusers
-    apt-get install -y lsusers
-    lsusers --version | grep "lsusers 0.1.2"
+    apt-cache policy "$PACKAGE" | grep -F "Candidate: $VERSION"
+    apt-get install -y "$PACKAGE"
+    "$PACKAGE" --version | grep -F "$PACKAGE $CLI_VERSION"
+    "$PACKAGE" count
+    apt-get remove -y "$PACKAGE"
+    apt-get install -y "$PACKAGE"
+    "$PACKAGE" --version | grep -F "$PACKAGE $CLI_VERSION"
   '
-
