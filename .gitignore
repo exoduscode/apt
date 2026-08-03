@@ -1,0 +1,5 @@
+# Generated and signed APT state belongs only to the apt-repository branch.
+/repository/db/
+/repository/dists/
+/repository/pool/
+/site/

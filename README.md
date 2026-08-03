@@ -40,10 +40,11 @@ Always compare the complete fingerprint before trusting a downloaded key.
   before expiry.
 - Generated indexes and packages are retained in Git so upgrades and rollback
   investigations remain auditable.
-- Reviewed source, workflows, manifests, and signing policy live on protected
-  `main`. Generated signed indexes and packages live on the append-only
-  `apt-repository` publication branch. The publishing workflow can fast-forward
-  that branch but cannot write to `main`.
+- Reviewed source, workflows, manifests, signing policy, and `reprepro`
+  configuration live on protected `main`. Generated databases, signed indexes,
+  and packages live only on the append-only `apt-repository` publication
+  branch. The publishing workflow copies the reviewed configuration into the
+  published state, can fast-forward that branch, and cannot write to `main`.
 - GitHub Pages is deployed from an artifact assembled by the approved workflow;
   Pages does not execute or publish unreviewed branch contents directly.
 

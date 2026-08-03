@@ -44,6 +44,11 @@ jobs:
           path: published
           fetch-depth: 0
 
+      - name: Apply reviewed repository configuration
+        run: |
+          rm -rf published/repository/conf
+          cp -R repository/conf published/repository/conf
+
       - name: Install repository tools
         run: |
           sudo apt-get update
