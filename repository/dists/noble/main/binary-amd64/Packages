@@ -1,17 +1,35 @@
 Package: lsusers
+Version: 0.1.2-1
+Architecture: all
+Maintainer: Matt Abreu <matheusabreu.dev@gmail.com>
+Installed-Size: 53
+Depends: python3:any
+Filename: pool/main/l/lsusers/lsusers_0.1.2-1_all.deb
+Size: 8920
+MD5sum: 5e931457feb9b5591212317ed0f8f3f2
+SHA1: 130c532f80cc31f732c603723c3a25a5d4ecc117
+SHA256: e1c630dc797958b5d5f12d397be8d03276f4ff2f7233b3bd57eecadfbe431735
+Section: admin
+Priority: optional
+Homepage: https://github.com/exoduscode/lsusers
+Description: simple Linux and macOS user account listing command
+ lsusers provides memorable commands for listing human, system, and all
+ accounts, with table, JSON, CSV, and names-only output.
+
+Package: lsusers
 Version: 0.1.3-1
 Architecture: all
 Maintainer: Matt Abreu <matheusabreu.dev@gmail.com>
 Installed-Size: 54
 Depends: python3:any
-Homepage: https://github.com/exoduscode/lsusers
-Priority: optional
-Section: admin
 Filename: pool/main/l/lsusers/lsusers_0.1.3-1_all.deb
 Size: 9396
-SHA256: 7ad98c9a5a9655bd157a95053c1371e58da18170e121a8475e593a12cb4a371e
-SHA1: bb9899a2e9282fb63733bacf3c7dac7899098b36
 MD5sum: 9517dce92bd1ca79103a218b0f41cdaa
+SHA1: bb9899a2e9282fb63733bacf3c7dac7899098b36
+SHA256: 7ad98c9a5a9655bd157a95053c1371e58da18170e121a8475e593a12cb4a371e
+Section: admin
+Priority: optional
+Homepage: https://github.com/exoduscode/lsusers
 Description: simple Linux and macOS user account listing command
  lsusers provides memorable commands for listing human, system, and all
  accounts, with table, JSON, CSV, and names-only output.

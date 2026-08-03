@@ -1,0 +1,16 @@
+{
+  "origin": "ExodusCode",
+  "label": "ExodusCode",
+  "suite": "stable",
+  "codename": "noble",
+  "version": "24.04",
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "components": [
+    "main"
+  ],
+  "description": "ExodusCode packages for Ubuntu 24.04 LTS",
+  "sign_with": "C85DDAF2A38CA242A745D9DE5A4025DA3610A2EC"
+}
