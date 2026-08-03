@@ -46,9 +46,15 @@ jobs:
           fetch-depth: 0
 
       - name: Apply reviewed repository configuration
+        id: configuration
         run: |
           rm -rf published/repository/conf
           cp -R repository/conf published/repository/conf
+          if git -C published diff --quiet -- repository/conf; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+          fi
 
       - name: Install repository tools
         run: |
@@ -87,6 +93,7 @@ jobs:
       - name: Import package idempotently
         env:
           APT_REPOSITORY_DIR: published/repository
+          APT_FORCE_REBUILD: ${{ steps.configuration.outputs.changed }}
         run: scripts/publish-package.sh "${{ inputs.tag }}" "${{ inputs.codename }}" "${{ steps.package.outputs.deb }}"
 
       - name: Validate signatures and installation on AMD64

@@ -21,6 +21,10 @@ if [[ -n "$existing" ]]; then
     exit 1
   fi
   echo "$package $version is already published with the approved checksum"
+  if [[ "${APT_FORCE_REBUILD:-false}" != "true" ]]; then
+    echo "Repository configuration is unchanged; preserving existing indexes and signatures"
+    exit 0
+  fi
 else
   if [[ "$package" == lib?* ]]; then
     pool_prefix=${package:0:4}
