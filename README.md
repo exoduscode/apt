@@ -37,14 +37,18 @@ Always compare the complete fingerprint before trusting a downloaded key.
   GitHub artifact attestation before it can be imported.
 - A published package version is immutable. Republishing the same version with
   different bytes is rejected.
-- Downgrades are rejected.
+- All approved versions remain in the pool and are exported with
+  `dpkg-scanpackages --multiversion`, so a specific version can be installed
+  for recovery. Every pool entry is revalidated against the manifest before
+  indexes are regenerated and signed. The default APT candidate remains the
+  greatest Debian version.
 - The archive key expires on 2028-07-30. Rotation must begin at least 90 days
   before expiry.
 - Generated indexes and packages are retained in Git so upgrades and rollback
   investigations remain auditable.
-- Reviewed source, workflows, manifests, signing policy, and `reprepro`
-  configuration live on protected `main`. Generated databases, signed indexes,
-  and packages live only on the append-only `apt-repository` publication
+- Reviewed source, workflows, manifests, signing policy, and release metadata
+  live on protected `main`. Generated signed indexes and packages live only on
+  the append-only `apt-repository` publication
   branch. The publishing workflow copies the reviewed configuration into the
   published state, can fast-forward that branch, and cannot write to `main`.
 - GitHub Pages is deployed from an artifact assembled by the approved workflow;
