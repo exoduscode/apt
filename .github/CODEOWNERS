@@ -1,0 +1,7 @@
+* @matheus-abreu-exoduscode
+
+# Publishing policy and signing configuration require explicit review.
+/.github/workflows/publish.yml @matheus-abreu-exoduscode
+/keys/ @matheus-abreu-exoduscode
+/releases/ @matheus-abreu-exoduscode
+/repository/conf/ @matheus-abreu-exoduscode
